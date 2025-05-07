@@ -1,5 +1,12 @@
 import { createEffect, createSignal, on, Show } from "solid-js";
 
+enum Rotate {
+  Zero = 0,
+  Ninety = 90,
+  OneHundredEighty = 180,
+  TwoHundredSeventy = 270,
+}
+
 function App() {
   const img = createSignal("");
   let fIn!: HTMLInputElement;
@@ -12,6 +19,8 @@ function App() {
   const contrast = createSignal(100);
   const sepia = createSignal(0);
 
+  const flip = createSignal(Rotate.Zero);
+
   createEffect(
     on(
       [
@@ -22,9 +31,9 @@ function App() {
         sepia[0],
         contrast[0],
         greyscale[0],
+        flip[0],
       ],
       async () => {
-        console.log("ER");
         if (img[0]()) {
           const imageData = img[0]();
           const imageEl = document.createElement("img");
@@ -49,6 +58,35 @@ function App() {
           // Apply the filter to the image
           ctx.filter = filterString;
 
+          if (flip[0]() !== Rotate.Zero) {
+            // Store the original width and height
+            const originalWidth = canvas.width;
+            const originalHeight = canvas.height;
+
+            if (flip[0]() !== Rotate.OneHundredEighty) {
+              // Swap width and height to match rotated dimensions
+              const newWidth = canvas.height;
+              const newHeight = canvas.width;
+              // Set new canvas size
+              canvas.width = newWidth;
+              canvas.height = newHeight;
+            }
+            // Move the origin to the new top-left corner
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+
+            // Convert degrees to radians and rotate
+            ctx.rotate((flip[0]() * Math.PI) / 180);
+
+            // Translate back based on the original dimensions
+            if (flip[0]() === Rotate.Ninety) {
+              ctx.translate(-originalWidth / 2, -originalHeight / 2);
+            } else if (flip[0]() === Rotate.OneHundredEighty) {
+              ctx.translate(-canvas.width / 2, -canvas.height / 2);
+            } else if (flip[0]() === Rotate.TwoHundredSeventy) {
+              ctx.translate(-originalWidth / 2, -originalHeight / 2);
+            }
+          }
+
           ctx.drawImage(imageEl, 0, 0);
 
           imageEl.remove();
@@ -64,6 +102,7 @@ function App() {
     greyscale[1](0);
     contrast[1](100);
     sepia[1](0);
+    flip[1](Rotate.Zero);
   }
 
   return (
@@ -117,6 +156,15 @@ function App() {
             }}
           >
             <span>Reset</span>
+          </button>
+          <div class="divider"></div>
+          <button
+            disabled={!img[0]()}
+            onClick={() => {
+              flip[1]((v) => (v + 90) % 360);
+            }}
+          >
+            <span>Rotate 90º</span>
           </button>
         </div>
 
