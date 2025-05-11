@@ -1,3 +1,4 @@
+import "baboolastyles/public/plastic.css";
 import { createEffect, createSignal, on, Show } from "solid-js";
 
 enum Rotate {
