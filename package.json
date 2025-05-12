@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "baboolastyles": "^0.0.0",
-    "solid-js": "^1.9.5"
+    "baboolastyles": "^0.1.0",
+    "solid-js": "^1.9.6"
   },
   "devDependencies": {
     "typescript": "~5.8.3",
